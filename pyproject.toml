@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zerofusspdf"
+version = "0.1.0"
+description = "Zero PDF (ZFP): a geometry-first PDF understanding engine that turns visual intent into native PDF interactivity."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "ZeroFuss" }]
+keywords = ["pdf", "acroform", "forms", "ocr", "document-ai", "autofill"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Text Processing :: Markup",
+]
+dependencies = []
+
+[project.optional-dependencies]
+ocr = ["pytesseract>=0.3.10", "Pillow>=9.0"]
+paddle = ["paddleocr>=2.7"]
+vision = ["numpy>=1.21", "opencv-python-headless>=4.7"]
+render = ["pypdfium2>=4.0"]
+pdfbackends = ["pikepdf>=8.0", "pypdf>=4.0"]
+api = ["fastapi>=0.110", "uvicorn>=0.27"]
+council = []
+dev = ["pytest>=7", "mypy>=1.5", "ruff>=0.4"]
+all = ["zerofusspdf[ocr,vision,render,pdfbackends,api]"]
+
+[project.scripts]
+zfp = "zfp.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/ZeroFuss/zerofusspdf"
+Source = "https://github.com/ZeroFuss/zerofusspdf"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+zfp = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501", "B008", "UP006", "UP007", "UP035"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+warn_unused_ignores = false
