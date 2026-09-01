@@ -28,11 +28,11 @@ class Point:
     x: float
     y: float
 
-    def translated(self, dx: float, dy: float) -> "Point":
+    def translated(self, dx: float, dy: float) -> Point:
         """Return a copy shifted by ``(dx, dy)``."""
         return Point(self.x + dx, self.y + dy)
 
-    def distance_to(self, other: "Point") -> float:
+    def distance_to(self, other: Point) -> float:
         """Euclidean distance to ``other``."""
         return math.hypot(self.x - other.x, self.y - other.y)
 
@@ -57,12 +57,12 @@ class Rect:
 
     # ---------------------------------------------------------------- factories
     @staticmethod
-    def from_points(a: Point, b: Point) -> "Rect":
+    def from_points(a: Point, b: Point) -> Rect:
         """Build the normalized rectangle spanned by two corner points."""
         return Rect(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
 
     @staticmethod
-    def from_list(v: Sequence[float]) -> "Rect":
+    def from_list(v: Sequence[float]) -> Rect:
         """Build a normalized rectangle from ``[x0, y0, x1, y1]``."""
         if v is None or len(v) < 4:
             raise ValidationError("Rect.from_list needs at least 4 numbers, got %r" % (v,))
@@ -70,7 +70,7 @@ class Rect:
         return Rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
 
     @staticmethod
-    def bounding(rects: Iterable["Rect"]) -> Optional["Rect"]:
+    def bounding(rects: Iterable[Rect]) -> Optional[Rect]:
         """Return the bounding box of ``rects`` or ``None`` when the iterable is empty."""
         out: Optional[Rect] = None
         for r in rects:
@@ -105,7 +105,7 @@ class Rect:
         return Point((self.x0 + self.x1) / 2.0, (self.y0 + self.y1) / 2.0)
 
     # ------------------------------------------------------------- derivations
-    def normalized(self) -> "Rect":
+    def normalized(self) -> Rect:
         """Return a copy with ``x0 <= x1`` and ``y0 <= y1``."""
         return Rect(
             min(self.x0, self.x1),
@@ -114,27 +114,27 @@ class Rect:
             max(self.y0, self.y1),
         )
 
-    def inflated(self, dx: float, dy: Optional[float] = None) -> "Rect":
+    def inflated(self, dx: float, dy: Optional[float] = None) -> Rect:
         """Grow the rectangle by ``dx`` horizontally and ``dy`` vertically (``dy=dx`` by default)."""
         d_y = dx if dy is None else dy
         n = self.normalized()
         return Rect(n.x0 - dx, n.y0 - d_y, n.x1 + dx, n.y1 + d_y)
 
-    def translated(self, dx: float, dy: float) -> "Rect":
+    def translated(self, dx: float, dy: float) -> Rect:
         """Return a copy shifted by ``(dx, dy)``."""
         return Rect(self.x0 + dx, self.y0 + dy, self.x1 + dx, self.y1 + dy)
 
-    def scaled(self, sx: float, sy: Optional[float] = None) -> "Rect":
+    def scaled(self, sx: float, sy: Optional[float] = None) -> Rect:
         """Scale all coordinates about the user-space origin (``sy=sx`` by default)."""
         s_y = sx if sy is None else sy
         return Rect(self.x0 * sx, self.y0 * s_y, self.x1 * sx, self.y1 * s_y).normalized()
 
-    def union(self, other: "Rect") -> "Rect":
+    def union(self, other: Rect) -> Rect:
         """Return the smallest rectangle containing both rectangles."""
         a, b = self.normalized(), other.normalized()
         return Rect(min(a.x0, b.x0), min(a.y0, b.y0), max(a.x1, b.x1), max(a.y1, b.y1))
 
-    def intersection(self, other: "Rect") -> Optional["Rect"]:
+    def intersection(self, other: Rect) -> Optional[Rect]:
         """Return the overlapping rectangle, or ``None`` when the rectangles are disjoint.
 
         Closed-set semantics: rectangles that merely touch (or degenerate rules with
@@ -147,7 +147,7 @@ class Rect:
             return None
         return Rect(x0, y0, x1, y1)
 
-    def iou(self, other: "Rect") -> float:
+    def iou(self, other: Rect) -> float:
         """Intersection-over-union in ``[0, 1]``; ``0.0`` when both rectangles have no area."""
         inter = self.intersection(other)
         inter_area = 0.0 if inter is None else inter.area
@@ -162,21 +162,21 @@ class Rect:
         n = self.normalized()
         return n.x0 <= p.x <= n.x1 and n.y0 <= p.y <= n.y1
 
-    def contains_rect(self, other: "Rect") -> bool:
+    def contains_rect(self, other: Rect) -> bool:
         """True when ``other`` lies entirely inside (boundary inclusive)."""
         a, b = self.normalized(), other.normalized()
         return a.x0 <= b.x0 and a.y0 <= b.y0 and b.x1 <= a.x1 and b.y1 <= a.y1
 
-    def intersects(self, other: "Rect") -> bool:
+    def intersects(self, other: Rect) -> bool:
         """True when :meth:`intersection` is not ``None``."""
         return self.intersection(other) is not None
 
-    def horizontal_overlap(self, other: "Rect") -> float:
+    def horizontal_overlap(self, other: Rect) -> float:
         """Length in points over which the two x-ranges overlap (0 when disjoint)."""
         a, b = self.normalized(), other.normalized()
         return max(0.0, min(a.x1, b.x1) - max(a.x0, b.x0))
 
-    def vertical_overlap(self, other: "Rect") -> float:
+    def vertical_overlap(self, other: Rect) -> float:
         """Length in points over which the two y-ranges overlap (0 when disjoint)."""
         a, b = self.normalized(), other.normalized()
         return max(0.0, min(a.y1, b.y1) - max(a.y0, b.y0))
@@ -186,7 +186,7 @@ class Rect:
         """Return ``[x0, y0, x1, y1]``."""
         return [self.x0, self.y0, self.x1, self.y1]
 
-    def rounded(self, ndigits: int = 3) -> "Rect":
+    def rounded(self, ndigits: int = 3) -> Rect:
         """Return a copy with every coordinate rounded to ``ndigits`` decimals."""
         return Rect(
             round(self.x0, ndigits),
@@ -212,22 +212,22 @@ class Matrix:
 
     # ---------------------------------------------------------------- factories
     @staticmethod
-    def identity() -> "Matrix":
+    def identity() -> Matrix:
         """The identity transform."""
         return Matrix()
 
     @staticmethod
-    def translation(tx: float, ty: float) -> "Matrix":
+    def translation(tx: float, ty: float) -> Matrix:
         """Translate by ``(tx, ty)``."""
         return Matrix(1.0, 0.0, 0.0, 1.0, tx, ty)
 
     @staticmethod
-    def scaling(sx: float, sy: float) -> "Matrix":
+    def scaling(sx: float, sy: float) -> Matrix:
         """Scale by ``(sx, sy)`` about the origin."""
         return Matrix(sx, 0.0, 0.0, sy, 0.0, 0.0)
 
     @staticmethod
-    def rotation(degrees: float) -> "Matrix":
+    def rotation(degrees: float) -> Matrix:
         """Rotate counter-clockwise by ``degrees`` about the origin (PDF convention)."""
         rad = math.radians(degrees)
         cos, sin = math.cos(rad), math.sin(rad)
@@ -239,7 +239,7 @@ class Matrix:
         return Matrix(cos, sin, -sin, cos, 0.0, 0.0)
 
     # ---------------------------------------------------------------- algebra
-    def concat(self, other: "Matrix") -> "Matrix":
+    def concat(self, other: Matrix) -> Matrix:
         """Return ``self`` **then** ``other`` — the PDF matrix product ``self x other``."""
         return Matrix(
             a=self.a * other.a + self.b * other.c,
@@ -276,7 +276,7 @@ class Matrix:
         """Determinant of the linear part."""
         return self.a * self.d - self.b * self.c
 
-    def inverted(self) -> "Matrix":
+    def inverted(self) -> Matrix:
         """Return the inverse transform.
 
         Raises:
